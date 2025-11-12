@@ -1,4 +1,4 @@
-<img src="https://i.ibb.co/h19g76gq/logo-banca-inclusiva.png" alt="Logo B-Accesible" style="width:170px; border-radius:12px;" />
+<h1 align="center"><img src="https://i.ibb.co/h19g76gq/logo-banca-inclusiva.png" alt="Logo B-Accesible" style="width:170px; border-radius:12px;" /></h1>
 
 <h1 align="center">B-Accesible</h1>
 
