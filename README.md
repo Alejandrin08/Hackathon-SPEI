@@ -1,7 +1,3 @@
-
-
-
-
 <img src="/Users/elrevo/Devel/hackaton/UI/logo-banca-inclusiva.png" alt="Logo B-Accesible" style="width:170px; border-radius:12px;" />
 
 <h1 align="center">B-Accesible</h1>
@@ -19,9 +15,9 @@ Integra **inteligencia artificial responsable**, **lectura fácil**, **voz natur
 
 ## Objetivos del proyecto
 
-1. Facilitar la **accesibilidad** en la experiencia bancaria digital.  
-2. Usar IA de manera **explicativa y ética**, bajo los principios de autonomía, justicia y transparencia.  
-3. Mejorar la comprensión y reducir la carga cognitiva en personas mayores o con baja alfabetización.  
+1. Facilitar la **accesibilidad** en la experiencia bancaria digital.
+2. Usar IA de manera **explicativa y ética**, bajo los principios de autonomía, justicia y transparencia.
+3. Mejorar la comprensión y reducir la carga cognitiva en personas mayores o con baja alfabetización.
 4. Implementar mecanismos de **navegación por voz, lectura fácil y alto contraste**.
 
 ---
@@ -30,8 +26,8 @@ Integra **inteligencia artificial responsable**, **lectura fácil**, **voz natur
 
 El sustento técnico y ético de los modelos se detalla en los siguientes documentos:
 
-- 📘 [`Ética e impacto social`](./docs/ethics_and_social.md) — *Resultados de entrenamiento e interpretación ética*  
-- 🧭 [`Sustento metodológico`](./docs/method_and:tech.md) — *Metodología para alcanzar métricas de impacto*  
+- 📘 [`Ética e impacto social`](./docs/ethics_and_social.md) — _Resultados de entrenamiento e interpretación ética_
+- 🧭 [`Sustento metodológico`](./docs/method_and:tech.md) — _Metodología para alcanzar métricas de impacto_
 
 ---
 
@@ -41,3 +37,4 @@ El sustento técnico y ético de los modelos se detalla en los siguientes docume
    ```bash
    git clone https://github.com/tuusuario/B-Accesible.git
    cd B-Accesible/UI
+   ```
