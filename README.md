@@ -1,4 +1,4 @@
-<img src="/Users/elrevo/Devel/hackaton/UI/logo-banca-inclusiva.png" alt="Logo B-Accesible" style="width:170px; border-radius:12px;" />
+<img src="C:\Users\alesa\OneDrive\Escritorio\Hack\UI\logo-banca-inclusiva.png" alt="Logo B-Accesible" style="width:170px; border-radius:12px;" />
 
 <h1 align="center">B-Accesible</h1>
 
