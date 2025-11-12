@@ -50,7 +50,7 @@ Se aplicó la metodología de **Diseño Centrado en la Persona (Human-Centered D
 
 El siguiente diagrama de despliegue muestra los distintos componentes de la arquitectura de B-Accesible
 
-<img src="figures/deployment.png" alt="Logo B-Accesible" style="width:90%; border-radius:12px;" />
+<img src="../figures/deployment.png" alt="Logo B-Accesible" style="width:90%; border-radius:12px;" />
 
 ### 4.3 Flujo general
 
