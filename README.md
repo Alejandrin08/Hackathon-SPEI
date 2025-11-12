@@ -27,7 +27,7 @@ Integra **inteligencia artificial responsable**, **lectura fácil**, **voz natur
 El sustento técnico y ético de los modelos se detalla en los siguientes documentos:
 
 - 📘 [`Ética e impacto social`](./docs/ethics_and_social.md) — _Resultados de entrenamiento e interpretación ética_
-- 🧭 [`Sustento metodológico`](./docs/method_and:tech.md) — _Metodología para alcanzar métricas de impacto_
+- 🧭 [`Sustento metodológico`](./docs/method_and_tech.md) — _Metodología para alcanzar métricas de impacto_
 
 ---
 
@@ -35,6 +35,5 @@ El sustento técnico y ético de los modelos se detalla en los siguientes docume
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/tuusuario/B-Accesible.git
-   cd B-Accesible/UI
+   git clone https://github.com/Alejandrin08/Hackathon-SPEI.git
    ```
