@@ -1,0 +1,104 @@
+version: "3.8"
+
+services:
+  # ---------------------------------
+  # 1. Base de Datos (SQL Server)
+  # ---------------------------------
+  sql-server-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hackathon-sql-server
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "123SPEI"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-server-data:/var/opt/mssql
+
+  # ---------------------------------
+  # 2. API Gateway (Ocelot)
+  # ---------------------------------
+  ocelot-gateway:
+    container_name: hackathon-gateway
+    build:
+      context: ./OcelotGateway
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - JwtSettings__Key=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=https://api.backendAuth.com
+      - JwtSettings__Audience=https://app.backendAuth.com
+    depends_on:
+      - authprofileservice
+      - ledgerservice
+      - openfinanceservice
+
+  # ---------------------------------
+  # 3. AuthProfileService
+  # ---------------------------------
+  authprofileservice:
+    container_name: hackathon-auth
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sql-server-db;Database=auth_db;User Id=sa;Password=${DB_PASSWORD};Trusted_Connection=False;Encrypt=False;TrustServerCertificate=True;
+      - JwtSettings__Key=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=https://api.backendAuth.com
+      - JwtSettings__Audience=https://app.backendAuth.com
+    depends_on:
+      - sql-server-db
+
+  # ---------------------------------
+  # 4. LedgerService
+  # ---------------------------------
+  ledgerservice:
+    container_name: hackathon-ledger
+    build:
+      context: ./LedgerService
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__LedgerDbConnection=Server=sql-server-db;Database=ledger_db;User Id=sa;Password=${DB_PASSWORD};Trusted_Connection=False;Encrypt=False;TrustServerCertificate=True;
+      - JwtSettings__Key=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=https://api.backendAuth.com
+      - JwtSettings__Audience=https://app.backendAuth.com
+    depends_on:
+      - sql-server-db
+
+  # ---------------------------------
+  # 5. AnalyticsService
+  # ---------------------------------
+  analyticsservice:
+    container_name: hackathon-analytics
+    build:
+      context: ./AnalyticsService
+      dockerfile: Dockerfile
+    ports:
+      - "7002:8080"
+    environment:
+      - ConnectionStrings__AnalyticsDbConnection=Server=sql-server-db;Database=analytics_db;User Id=sa;Password=${DB_PASSWORD};Trusted_Connection=False;Encrypt=False;TrustServerCertificate=True;
+      - JwtSettings__Key=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=https://api.backendAuth.com
+      - JwtSettings__Audience=https://app.backendAuth.com
+    depends_on:
+      - sql-server-db
+
+  # ---------------------------------
+  # 6. OpenFinanceService
+  # ---------------------------------
+  openfinanceservice:
+    container_name: hackathon-openfinance
+    build:
+      context: ./OpenFinanceService
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__OpenFinanceDbConnection=Server=sql-server-db;Database=openfinance_db;User Id=sa;Password=${DB_PASSWORD};Trusted_Connection=False;Encrypt=False;TrustServerCertificate=True;
+      - JwtSettings__Key=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=https://api.backendAuth.com
+      - JwtSettings__Audience=https://app.backendAuth.com
+    depends_on:
+      - sql-server-db
+
+volumes:
+  sql-server-data:
