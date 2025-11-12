@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Demo - Banca Inclusiva con IA Ética</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html {
+        font-size: 16px;
+      }
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+    </style>
+    /* Tema de alto contraste accesible */
+    <style>
+      :root {
+        --bg-color: #f8fafc;
+        --text-color: #1e293b;
+        --accent-color: #0284c7;
+        --focus-outline: #38bdf8;
+      }
+
+      .theme-high-contrast {
+        --bg-color: #000;
+        --text-color: #ffffff;
+        --accent-color: #00ffff;
+        --focus-outline: #ffff00;
+        --card-bg: #111111;
+        --border-color: #00ffff;
+        --muted-text: #cccccc;
+
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      .theme-high-contrast a,
+      .theme-high-contrast button,
+      .theme-high-contrast input,
+      .theme-high-contrast select {
+        color: var(--text-color) !important;
+        background-color: var(--card-bg) !important;
+        border-color: var(--border-color) !important;
+      }
+
+      .theme-high-contrast h1,
+      .theme-high-contrast h2,
+      .theme-high-contrast h3,
+      .theme-high-contrast h4,
+      .theme-high-contrast strong {
+        color: var(--accent-color) !important;
+      }
+
+      .theme-high-contrast p,
+      .theme-high-contrast label,
+      .theme-high-contrast span,
+      .theme-high-contrast li {
+        color: var(--muted-text) !important;
+      }
+
+      .theme-high-contrast .card {
+        background-color: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-color) !important;
+      }
+
+      .theme-high-contrast .badge,
+      .theme-high-contrast .bg-white {
+        background-color: var(--card-bg) !important;
+        color: var(--text-color) !important;
+        border-color: var(--border-color) !important;
+      }
+
+      /* For inner Tailwind background utilities used in cards, force dark backgrounds in alto contraste */
+      .theme-high-contrast .bg-emerald-50,
+      .theme-high-contrast .bg-emerald-100,
+      .theme-high-contrast .bg-sky-50,
+      .theme-high-contrast .bg-sky-100,
+      .theme-high-contrast .bg-amber-50,
+      .theme-high-contrast .bg-amber-100,
+      .theme-high-contrast .bg-green-50,
+      .theme-high-contrast .bg-green-100 {
+        background-color: var(--card-bg) !important;
+        color: var(--text-color) !important;
+      }
+
+      .theme-high-contrast .text-emerald-700,
+      .theme-high-contrast .text-emerald-900,
+      .theme-high-contrast .text-amber-700,
+      .theme-high-contrast .text-amber-800,
+      .theme-high-contrast .text-sky-600,
+      .theme-high-contrast .text-sky-700,
+      .theme-high-contrast .text-green-700 {
+        color: var(--text-color) !important;
+      }
+
+      .theme-high-contrast button:focus,
+      .theme-high-contrast input:focus,
+      .theme-high-contrast select:focus {
+        outline: 3px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      .theme-high-contrast .text-slate-700,
+      .theme-high-contrast .text-slate-800,
+      .theme-high-contrast .text-slate-900 {
+        color: var(--text-color) !important;
+      }
+
+      .theme-high-contrast .opacity-70,
+      .theme-high-contrast .opacity-80 {
+        opacity: 1 !important;
+        color: var(--muted-text) !important;
+      }
+
+      /* Tema de texto más grande para usuarios con baja visión o preferencias de lectura fácil.
+         Aplicamos la clase en <html> para que escalen los tamaños basados en rem de Tailwind. */
+      html.theme-large-text {
+        font-size: 18px;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+    <!-- Tailwind para estilos rápidos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React y ReactDOM desde CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel para soportar JSX en el navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body id="app-body" class="bg-slate-100">
+    <div id="root"></div>
+    <div class="sr-only" aria-live="polite" id="screenreader-intro">
+      Bienvenida a Banca Inclusiva. Usa la tecla Tab para moverte entre botones y campos. Esta es una demostración; no usamos datos reales.
+    </div>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      // ================ UTILIDAD: VOZ ================
+      function speakText(text) {
+        if (typeof window === "undefined") return;
+        if (!("speechSynthesis" in window)) {
+          console.warn("speechSynthesis no disponible en este navegador.");
+          return;
+        }
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "es-MX";
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utter);
+      }
+
+      // ================ IA SIMULADA ================
+
+      function simulateAccessibilityProfile(onboarding) {
+        const {
+          canReadSmallText,
+          usesScreenReader,
+          confidence,
+          ageRange,
+          literacy,
+        } = onboarding;
+
+        let theme = "standard";
+        if (!canReadSmallText || ageRange === "60_plus") {
+          theme = "high-contrast";
+        }
+        if (usesScreenReader) {
+          theme = "voice";
+        }
+
+        let fontScale = 1.0;
+        if (theme === "standard") fontScale = 1.1;
+        if (theme === "high-contrast") fontScale = 1.5;
+        if (theme === "voice") fontScale = 1.4;
+
+        let nudgingLevel = "low";
+        if (confidence === "low" || literacy === "low") nudgingLevel = "high";
+        else if (confidence === "medium") nudgingLevel = "medium";
+
+        const voiceFeedback = usesScreenReader || nudgingLevel === "high";
+
+        const lowLiteracy = literacy === "low";
+
+        return {
+          theme,
+          fontScale,
+          nudgingLevel,
+          voiceFeedback,
+          screenReaderMode: usesScreenReader,
+          lowLiteracy,
+        };
+      }
+
+      function simulateNudging(features) {
+        const {
+          errors,
+          timeOnScreen,
+          backNavigations,
+          nudgingLevelProfile,
+        } = features;
+
+        let score =
+          errors * 1.5 +
+          backNavigations * 1 +
+          timeOnScreen / 60 +
+          (nudgingLevelProfile === "high" ? 1 : 0);
+
+        const needsHelp = score > 3.0;
+        let nudgeType = "info";
+        if (score > 5) nudgeType = "assist";
+        else if (score > 2.5) nudgeType = "info";
+        else nudgeType = "none";
+
+        return {
+          needsHelp,
+          difficultyScore: Math.min(1, score / 6),
+          nudgeType,
+          reason: needsHelp
+            ? "Detectamos que esta pantalla podría estar siendo difícil."
+            : "Parece que vas bien.",
+        };
+      }
+
+      function simulateRiskAssessment(tx) {
+        const {
+          amount,
+          isNewBeneficiary,
+          hour,
+          avgAmount,
+          pastTx,
+          toSameBeneficiary,
+        } = tx;
+
+        let score = 0;
+        const factors = [];
+
+        if (amount > avgAmount * 2) {
+          score += 2;
+          factors.push("Monto mucho mayor a tu promedio");
+        }
+        if (isNewBeneficiary) {
+          score += 1.5;
+          factors.push("Nuevo destinatario");
+        }
+        if (hour < 6 || hour > 22) {
+          score += 1;
+          factors.push("Horario inusual");
+        }
+        if (pastTx < 3) {
+          score += 0.5;
+          factors.push("Poco historial de transacciones");
+        }
+        if (!isNewBeneficiary && toSameBeneficiary === 0) {
+          score += 0.5;
+        }
+
+        let level = "bajo";
+        if (score > 3.5) level = "alto";
+        else if (score > 2) level = "medio";
+
+        return {
+          riskLevel: level,
+          riskScore: Math.min(1, score / 5),
+          factors,
+        };
+      }
+
+      // ================ COMPONENTES UI REUSABLES ================
+
+      function Badge({ children, color = "gray" }) {
+        const colorMap = {
+          gray: "bg-gray-100 text-gray-800",
+          green: "bg-green-100 text-green-800",
+          yellow: "bg-yellow-100 text-yellow-800",
+          red: "bg-red-100 text-red-800",
+          blue: "bg-blue-100 text-blue-800",
+        };
+        return (
+          <span
+            className={
+              "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium " +
+              (colorMap[color] || colorMap.gray)
+            }
+          >
+            {children}
+          </span>
+        );
+      }
+
+      function Card({ title, children, className = "" }) {
+        return (
+          <div
+            className={
+              "card bg-white rounded-2xl shadow-md p-4 md:p-6 mb-4 " + className
+            }
+          >
+            {title && (
+              <h2 className="text-lg md:text-xl font-semibold mb-3 text-slate-800">
+                {title}
+              </h2>
+            )}
+            {children}
+          </div>
+        );
+      }
+
+      // ================ RECORDING CONTROLS ================
+      function RecordingControls() {
+        const [isRecording, setIsRecording] = useState(false);
+        const [downloadUrl, setDownloadUrl] = useState(null);
+        const mediaRecorderRef = React.useRef(null);
+        const chunksRef = React.useRef([]);
+
+        async function startRecording() {
+          try {
+            const stream = await navigator.mediaDevices.getDisplayMedia({
+              video: { cursor: "motion" },
+              audio: true,
+            });
+
+            chunksRef.current = [];
+            const mr = new MediaRecorder(stream, { mimeType: "video/webm" });
+            mediaRecorderRef.current = mr;
+
+            mr.ondataavailable = (event) => {
+              if (event.data && event.data.size > 0) {
+                chunksRef.current.push(event.data);
+              }
+            };
+
+            mr.onstop = () => {
+              const blob = new Blob(chunksRef.current, { type: "video/webm" });
+              const url = URL.createObjectURL(blob);
+              setDownloadUrl(url);
+              speakText(
+                "Tu grabación de la demo está lista para descargar."
+              );
+              stream.getTracks().forEach((t) => t.stop());
+            };
+
+            mr.start();
+            setIsRecording(true);
+            speakText(
+              "Comenzamos a grabar la pantalla de la demo. Cuando quieras detenerla, usa el mismo botón."
+            );
+          } catch (err) {
+            console.warn("No se pudo iniciar la grabación:", err);
+            speakText(
+              "No pudimos iniciar la grabación. Revisa los permisos de pantalla y micrófono."
+            );
+          }
+        }
+
+        function stopRecording() {
+          const mr = mediaRecorderRef.current;
+          if (mr && mr.state !== "inactive") {
+            mr.stop();
+          }
+          setIsRecording(false);
+        }
+
+        return (
+          <div className="mt-2 flex flex-col items-end text-xs">
+            <button
+              type="button"
+              onClick={isRecording ? stopRecording : startRecording}
+              className="px-3 py-1.5 rounded-full border border-rose-400 bg-white text-rose-700 hover:bg-rose-50"
+            >
+              {isRecording ? "⏹️ Detener grabación" : "🎬 Grabar demo en video"}
+            </button>
+            {downloadUrl && (
+              <a
+                href={downloadUrl}
+                download="b-accesible-demo.webm"
+                className="mt-1 underline"
+              >
+                Descargar video de la demo
+              </a>
+            )}
+          </div>
+        );
+      }
+
+      // ================ LOGIN ================
+
+      function LoginScreen({ onLogin }) {
+        const [card, setCard] = useState("");
+        const [pin, setPin] = useState("");
+
+        function handleLogin() {
+          onLogin();
+        }
+
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-slate-900">
+            <div className="max-w-md w-full px-4">
+              <div className="bg-slate-800 rounded-3xl shadow-lg p-6 md:p-8 text-slate-100">
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src="./logo-banca-inclusiva.png"
+                    alt="Logotipo de Banca Inclusiva"
+                    className="w-10 h-10 rounded-full border border-slate-600 bg-white"
+                  />
+                  <div>
+                    <h1 className="text-2xl font-bold">
+                      B-Accesible
+                    </h1>
+                    <p className="text-xs opacity-80">
+                      Una app sencilla y accesible para usar tu dinero con seguridad.
+                    </p>
+                  </div>
+                </div>
+                <p className="text-sm mb-6 opacity-80">
+                  Esta es una <strong>demostración</strong>. Aquí simulamos que entras con tus
+                  <strong> datos como: usuario, número de cliente</strong>. No usamos datos reales.
+                </p>
+
+                <label className="block text-sm font-medium mb-1">
+                  Número de cliente o nombre de usuario
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-2xl border border-slate-300 bg-slate-900 px-3 py-2 mb-3 text-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-800"
+                  placeholder="**** **** **** 1234"
+                  value={card}
+                  onChange={(e) => setCard(e.target.value)}
+                />
+
+                <label className="block text-sm font-medium mb-1">
+                  Clave o Número confidencial (PIN)
+                </label>
+                <input
+                  type="password"
+                  className="w-full rounded-2xl border border-slate-300 bg-slate-900 px-3 py-2 mb-4 text-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-800"
+                  placeholder="••••"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                />
+
+                <button
+                  onClick={handleLogin}
+                  className="w-full py-2.5 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-slate-800"
+                >
+                  Entrar
+                </button>
+
+                <p className="text-[11px] mt-3 opacity-70">
+                  En este demo no usamos datos reales. Todo está simulado para
+                  mostrar un flujo de banca accesible.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ================ ONBOARDING / PERFIL ================
+
+      function OnboardingScreen({ onComplete }) {
+        const [name, setName] = useState("");
+        const [ageRange, setAgeRange] = useState("31_50");
+        const [canReadSmallText, setCanReadSmallText] = useState(true);
+        const [usesScreenReader, setUsesScreenReader] = useState(false);
+        const [confidence, setConfidence] = useState("medium");
+        const [literacy, setLiteracy] = useState("medium");
+
+        function handleNext() {
+          const onboarding = {
+            name,
+            ageRange,
+            canReadSmallText,
+            usesScreenReader,
+            confidence,
+            literacy,
+          };
+          const profile = simulateAccessibilityProfile(onboarding);
+          onComplete(onboarding, profile);
+        }
+
+        return (
+          <div className="max-w-4xl mx-auto py-6 md:py-10 px-4">
+            <Card title="Bienvenida">
+              <p className="text-slate-800 mb-4 text-sm">
+                Imaginemos a <strong>María</strong>, <strong>Luis</strong> o <strong>Carmen</strong>.
+                Quieren usar su dinero desde el celular, pero las apps normales son difíciles de entender.
+              </p>
+              <p className="text-slate-800 mb-4 text-sm">
+                Aquí la pantalla cambia para ti. Hacemos el texto más claro, grande o con voz, según lo que necesites.
+              </p>
+            </Card>
+
+            <Card title="Cuéntanos un poco de ti">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    ¿Cómo te llamamos?
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded-xl px-3 py-2 text-slate-800"
+                    placeholder="Ej. María"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Tu rango de edad
+                  </label>
+                  <select
+                    className="w-full border rounded-xl px-3 py-2 text-slate-800"
+                    value={ageRange}
+                    onChange={(e) => setAgeRange(e.target.value)}
+                  >
+                    <option value="18_30">18 a 30 años</option>
+                    <option value="31_50">31 a 50 años</option>
+                    <option value="51_60">51 a 60 años</option>
+                    <option value="60_plus">Más de 60 años</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    ¿Te cuesta leer texto pequeño?
+                  </label>
+                  <div className="flex gap-3 mt-1">
+                    <button
+                      onClick={() => setCanReadSmallText(false)}
+                      className={
+                        "px-3 py-2 rounded-xl text-sm border flex-1 " +
+                        (!canReadSmallText
+                          ? "bg-sky-600 text-white border-sky-600"
+                          : "bg-white text-slate-800")
+                      }
+                    >
+                      Sí, prefiero letra grande
+                    </button>
+                    <button
+                      onClick={() => setCanReadSmallText(true)}
+                      className={
+                        "px-3 py-2 rounded-xl text-sm border flex-1 " +
+                        (canReadSmallText
+                          ? "bg-sky-600 text-white border-sky-600"
+                          : "bg-white text-slate-800")
+                      }
+                    >
+                      No, puedo leer bien
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    ¿Usas lector de pantalla?
+                  </label>
+                  <div className="flex gap-3 mt-1">
+                    <button
+                      onClick={() => setUsesScreenReader(true)}
+                      className={
+                        "px-3 py-2 rounded-xl text-sm border flex-1 " +
+                        (usesScreenReader
+                          ? "bg-sky-600 text-white border-sky-600"
+                          : "bg-white text-slate-800")
+                      }
+                    >
+                      Sí
+                    </button>
+                    <button
+                      onClick={() => setUsesScreenReader(false)}
+                      className={
+                        "px-3 py-2 rounded-xl text-sm border flex-1 " +
+                        (!usesScreenReader
+                          ? "bg-sky-600 text-white border-sky-600"
+                          : "bg-white text-slate-800")
+                      }
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-800 mb-1">
+                    ¿Qué tan cómoda te sientes usando aplicaciones en el celular?
+                  </label>
+                  <select
+                    className="w-full border rounded-xl px-3 py-2 text-slate-800"
+                    value={confidence}
+                    onChange={(e) => setConfidence(e.target.value)}
+                  >
+                    <option value="low">Me cuesta bastante</option>
+                    <option value="medium">Más o menos</option>
+                    <option value="high">Muy cómoda</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-800 mb-1">
+                    ¿Qué tan fácil es para ti leer y escribir mensajes sencillos?
+                  </label>
+                  <select
+                    className="w-full border rounded-xl px-3 py-2 text-slate-800"
+                    value={literacy}
+                    onChange={(e) => setLiteracy(e.target.value)}
+                  >
+                    <option value="low">
+                      Me cuesta leer o escribir mensajes largos
+                    </option>
+                    <option value="medium">A veces me cuesta</option>
+                    <option value="high">No tengo problemas</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={handleNext}
+                  className="px-5 py-2.5 rounded-2xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-700"
+                >
+                  Continuar al panel
+                </button>
+              </div>
+            </Card>
+          </div>
+        );
+      }
+
+      // ================ PANTALLAS DEL DASHBOARD ================
+
+      function BalanceScreen({ profile }) {
+        const fontClass =
+          profile.fontScale >= 1.5
+            ? "text-lg"
+            : profile.fontScale >= 1.3
+            ? "text-base"
+            : "text-sm";
+
+        const voiceEnabled =
+          profile.voiceFeedback ||
+          profile.screenReaderMode ||
+          profile.theme === "high-contrast";
+
+        const mainBalance = 5280.0;
+        const bienestarBalance = 1800.0;
+        const ahorroBalance = 3480.0;
+
+        return (
+          <div className={"space-y-4 " + fontClass}>
+            <div className="bg-emerald-50 rounded-2xl p-4 flex justify-between items-center">
+              <div>
+                <p className="text-xs text-emerald-700">Cuenta principal</p>
+                <p className="text-2xl font-bold text-emerald-900">
+                  $ {mainBalance.toLocaleString("es-MX", {
+                    minimumFractionDigits: 2,
+                  })}
+                </p>
+                {voiceEnabled && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakText(
+                        `Tu saldo disponible en la cuenta principal es de ${mainBalance} pesos.`
+                      )
+                    }
+                    className="mt-1 inline-flex items-center text-xs text-emerald-700 underline"
+                  >
+                    🔊 Escuchar saldo
+                  </button>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-emerald-700">Disponible</p>
+                <Badge color="green">Saldo protegido</Badge>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="bg-white rounded-2xl p-3 border">
+                <p className="text-xs text-slate-500 mb-1">
+                  💳 Tarjeta del Bienestar
+                </p>
+                <p className="text-sm font-semibold text-slate-800 mb-1">
+                  **** **** **** 1234
+                </p>
+                <p className="text-xs text-slate-600">
+                  Saldo:{" "}
+                  {bienestarBalance.toLocaleString("es-MX", {
+                    style: "currency",
+                    currency: "MXN",
+                  })}
+                </p>
+                {voiceEnabled && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakText(
+                        `En tu tarjeta del Bienestar tienes ${bienestarBalance} pesos.`
+                      )
+                    }
+                    className="mt-1 inline-flex items-center text-[11px] text-slate-600 underline"
+                  >
+                    🔊 Escuchar saldo de Bienestar
+                  </button>
+                )}
+              </div>
+              <div className="bg-white rounded-2xl p-3 border">
+                <p className="text-xs text-slate-500 mb-1">
+                  🏦 Cuenta ahorro
+                </p>
+                <p className="text-sm font-semibold text-slate-800 mb-1">
+                  **** **** **** 9876
+                </p>
+                <p className="text-xs text-slate-600">
+                  Saldo:{" "}
+                  {ahorroBalance.toLocaleString("es-MX", {
+                    style: "currency",
+                    currency: "MXN",
+                  })}
+                </p>
+                {voiceEnabled && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakText(
+                        `En tu cuenta de ahorro tienes ${ahorroBalance} pesos.`
+                      )
+                    }
+                    className="mt-1 inline-flex items-center text-[11px] text-slate-600 underline"
+                  >
+                    🔊 Escuchar saldo de ahorro
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function TransferScreen({
+        profile,
+        onboarding,
+        onNudgeUpdate,
+        onRiskUpdate,
+        nudgeResult,
+        mode, // "frequent" | "new"
+      }) {
+        const [amount, setAmount] = useState(0);
+        const [beneficiary, setBeneficiary] = useState(
+          mode === "frequent" ? "María Pérez" : "Otra persona"
+        );
+        const [isNewBeneficiary, setIsNewBeneficiary] = useState(
+          mode === "new"
+        );
+        const [step, setStep] = useState("form");
+        const [errors, setErrors] = useState(0);
+        const [backNavigations, setBackNavigations] = useState(0);
+        const [startTime] = useState(Date.now());
+
+        const fontClass =
+          profile.fontScale >= 1.5
+            ? "text-lg"
+            : profile.fontScale >= 1.3
+            ? "text-base"
+            : "text-sm";
+
+        const labelSimple =
+          profile.lowLiteracy || profile.theme === "high-contrast";
+
+        const voiceEnabled =
+          profile.voiceFeedback ||
+          profile.screenReaderMode ||
+          profile.theme === "high-contrast";
+
+        function validateForm() {
+          let localErrors = 0;
+          if (!amount || amount <= 0) localErrors++;
+          if (!beneficiary) localErrors++;
+          setErrors((e) => e + localErrors);
+          return localErrors === 0;
+        }
+
+        function recomputeNudgeAndRisk() {
+          const timeOnScreen = (Date.now() - startTime) / 1000;
+          const nudge = simulateNudging({
+            errors,
+            timeOnScreen,
+            backNavigations,
+            nudgingLevelProfile: profile.nudgingLevel,
+          });
+          onNudgeUpdate(nudge);
+
+          const risk = simulateRiskAssessment({
+            amount: Number(amount || 0),
+            isNewBeneficiary,
+            hour: new Date().getHours(),
+            avgAmount: 800,
+            pastTx: 5,
+            toSameBeneficiary: isNewBeneficiary ? 0 : 3,
+          });
+          onRiskUpdate(risk);
+        }
+
+        function handleAssistClick() {
+          setBackNavigations((b) => b + 1);
+          recomputeNudgeAndRisk();
+        }
+
+        function handlePreview() {
+          const ok = validateForm();
+          recomputeNudgeAndRisk();
+          if (ok) setStep("confirm");
+        }
+
+        function handleConfirm() {
+          setStep("done");
+        }
+
+        const subtleNudge =
+          nudgeResult && nudgeResult.needsHelp && step === "form";
+
+        return (
+          <div className={fontClass + " space-y-4"}>
+            {step === "form" && (
+              <>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <label className="block text-slate-700">
+                        {labelSimple
+                          ? "¿Cuánto quieres mandar?"
+                          : "Monto a enviar (MXN)"}
+                      </label>
+                      {voiceEnabled && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            speakText(
+                              "Ingresa aquí la cantidad de dinero que quieres enviar."
+                            )
+                          }
+                          className="text-xs text-sky-700"
+                          aria-label="Escuchar explicación del monto"
+                        >
+                          🔊
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      type="number"
+                      className="w-full rounded-xl border px-3 py-2 text-slate-800"
+                      value={amount}
+                      onChange={(e) =>
+                        setAmount(parseFloat(e.target.value))
+                      }
+                      placeholder="Ej. 500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <label className="block text-slate-700">
+                        {labelSimple
+                          ? "¿A quién le mandas dinero?"
+                          : "Selecciona destinatario"}
+                      </label>
+                      {voiceEnabled && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            speakText(
+                              "Elige a la persona a la que quieres enviar dinero."
+                            )
+                          }
+                          className="text-xs text-sky-700"
+                          aria-label="Escuchar explicación del destinatario"
+                        >
+                          🔊
+                        </button>
+                      )}
+                    </div>
+                    <select
+                      className="w-full rounded-xl border px-3 py-2 text-slate-800"
+                      value={beneficiary}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setBeneficiary(val);
+                        setIsNewBeneficiary(val === "Otra persona");
+                      }}
+                    >
+                      <option value="María Pérez">
+                        👩‍🦳 María Pérez (abuela)
+                      </option>
+                      <option value="Papelería Lupita">
+                        🏪 Papelería Lupita
+                      </option>
+                      <option value="Otra persona">👤 Otra persona (nuevo)</option>
+                    </select>
+                    {isNewBeneficiary && (
+                      <p className="text-amber-500 mt-1 text-xs">
+                        ⚠️ Este destinatario es nuevo en tu lista.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-start md:flex-row md:items-center md:justify-between mt-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAssistClick}
+                    className="text-sm text-sky-600 underline"
+                  >
+                    {labelSimple
+                      ? "Explícame mejor esta pantalla"
+                      : "Necesito ayuda con esta pantalla"}
+                  </button>
+                  <button
+                    onClick={handlePreview}
+                    className="px-5 py-2.5 rounded-2xl bg-sky-600 text-white font-semibold shadow hover:bg-sky-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:ring-offset-2 focus:ring-offset-white"
+                  >
+                    Revisar antes de enviar
+                  </button>
+                </div>
+
+                {subtleNudge && (
+                  <p className="text-xs text-sky-700 mt-1 flex items-center gap-1">
+                    💡 Sugerencia: puedes usar el botón{" "}
+                    <strong>&quot;Revisar antes de enviar&quot;</strong> para
+                    que revisemos juntos que todo esté bien.
+                  </p>
+                )}
+              </>
+            )}
+
+            {step === "confirm" && (
+              <div className="space-y-4">
+                <p className="text-slate-800">
+                  Vas a enviar{" "}
+                  <strong>${Number(amount).toFixed(2)} MXN</strong> a{" "}
+                  <strong>{beneficiary}</strong>.
+                </p>
+                <p className="text-xs text-slate-600">
+                  Revisa que el monto sea correcto y que confías en la persona
+                  que recibirá el dinero.
+                </p>
+                {voiceEnabled && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakText(
+                        `Estás por enviar ${amount} pesos a ${beneficiary}. Si todo es correcto, confirma el envío.`
+                      )
+                    }
+                    className="text-xs text-sky-700 underline"
+                  >
+                    🔊 Escuchar resumen antes de confirmar
+                  </button>
+                )}
+                <div className="flex justify-end gap-3 mt-3">
+                  <button
+                    onClick={() => setStep("form")}
+                    className="px-4 py-2 rounded-2xl border border-slate-400 text-sm"
+                  >
+                    Cambiar datos
+                  </button>
+                  <button
+                    onClick={handleConfirm}
+                    className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-semibold shadow text-sm"
+                  >
+                    Confirmar envío
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === "done" && (
+              <div className="space-y-3">
+                <p className="text-emerald-600 text-lg">
+                  ✅ ¡Listo! Has enviado tu dinero con seguridad.
+                </p>
+                <p className="text-sm text-slate-700">
+                  Nuestra IA solo te acompañó para que te sintieras más segura/o,
+                  pero la decisión final siempre fue tuya.
+                </p>
+                {voiceEnabled && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakText(
+                        "Tu envío se realizó correctamente. La decisión siempre fue tuya; nosotros solo te acompañamos."
+                      )
+                    }
+                    className="text-xs text-sky-700 underline"
+                  >
+                    🔊 Escuchar confirmación
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      function BillsScreen({ profile, onNudgeUpdate, onRiskUpdate, nudgeResult }) {
+        const [service, setService] = useState("CFE");
+        const [amount, setAmount] = useState(350);
+        const [card, setCard] = useState("bienestar");
+        const [step, setStep] = useState("form");
+        const [errors, setErrors] = useState(0);
+        const [startTime] = useState(Date.now());
+        const [backNavigations, setBackNavigations] = useState(0);
+
+        const labelSimple =
+          profile.lowLiteracy || profile.theme === "high-contrast";
+
+        const fontClass =
+          profile.fontScale >= 1.5
+            ? "text-lg"
+            : profile.fontScale >= 1.3
+            ? "text-base"
+            : "text-sm";
+
+        const voiceEnabled =
+          profile.voiceFeedback ||
+          profile.screenReaderMode ||
+          profile.theme === "high-contrast";
+
+        function validateForm() {
+          let localErrors = 0;
+          if (!amount || amount <= 0) localErrors++;
+          setErrors((e) => e + localErrors);
+          return localErrors === 0;
+        }
+
+        function recomputeNudgeAndRisk() {
+          const timeOnScreen = (Date.now() - startTime) / 1000;
+          const nudge = simulateNudging({
+            errors,
+            timeOnScreen,
+            backNavigations,
+            nudgingLevelProfile: profile.nudgingLevel,
+          });
+          onNudgeUpdate(nudge);
+
+          const risk = simulateRiskAssessment({
+            amount: Number(amount || 0),
+            isNewBeneficiary: false,
+            hour: new Date().getHours(),
+            avgAmount: 400,
+            pastTx: 10,
+            toSameBeneficiary: 10,
+          });
+          onRiskUpdate(risk);
+        }
+
+        function handleAssistClick() {
+          setBackNavigations((b) => b + 1);
+          recomputeNudgeAndRisk();
+        }
+
+        function handlePreview() {
+          const ok = validateForm();
+          recomputeNudgeAndRisk();
+          if (ok) setStep("confirm");
+        }
+
+        function handleConfirm() {
+          setStep("done");
+        }
+
+        const subtleNudge =
+          nudgeResult && nudgeResult.needsHelp && step === "form";
+
+        return (
+          <div className={fontClass + " space-y-4"}>
+            {step === "form" && (
+              <>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <label className="block text-slate-700">
+                      {labelSimple
+                        ? "Escoge qué quieres pagar"
+                        : "Servicio a pagar"}
+                    </label>
+                    {voiceEnabled && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          speakText(
+                            "Elige si quieres pagar luz, agua o teléfono."
+                          )
+                        }
+                        className="text-xs text-sky-700"
+                      >
+                        🔊
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    className="w-full rounded-xl border px-3 py-2 text-slate-800"
+                    value={service}
+                    onChange={(e) => setService(e.target.value)}
+                  >
+                    <option value="CFE">⚡ Luz (CFE)</option>
+                    <option value="Agua">🚰 Agua</option>
+                    <option value="Telefono">📞 Teléfono / Internet</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <label className="block text-slate-700">
+                      Monto a pagar (MXN)
+                    </label>
+                    {voiceEnabled && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          speakText(
+                            "Escribe aquí cuánto vas a pagar de tu recibo."
+                          )
+                        }
+                        className="text-xs text-sky-700"
+                      >
+                        🔊
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="number"
+                    className="w-full rounded-xl border px-3 py-2 text-slate-800"
+                    value={amount}
+                    onChange={(e) =>
+                      setAmount(parseFloat(e.target.value))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <label className="block text-slate-700">
+                      {labelSimple
+                        ? "¿Con qué tarjeta quieres pagar?"
+                        : "Medio de pago"}
+                    </label>
+                    {voiceEnabled && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          speakText(
+                            "Elige si quieres pagar con tu tarjeta del Bienestar o con tu cuenta principal."
+                          )
+                        }
+                        className="text-xs text-sky-700"
+                      >
+                        🔊
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    className="w-full rounded-xl border px-3 py-2 text-slate-800"
+                    value={card}
+                    onChange={(e) => setCard(e.target.value)}
+                  >
+                    <option value="bienestar">
+                      💳 Tarjeta del Bienestar (**** 1234)
+                    </option>
+                    <option value="principal">
+                      🏦 Cuenta principal (**** 9876)
+                    </option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col items-start md:flex-row md:items-center md:justify-between mt-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAssistClick}
+                    className="text-sm text-sky-600 underline"
+                  >
+                    Explícame cómo funcionan los pagos de servicios
+                  </button>
+                  <button
+                    onClick={handlePreview}
+                    className="px-5 py-2.5 rounded-2xl bg-sky-600 text-white font-semibold shadow hover:bg-sky-700 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:ring-offset-2 focus:ring-offset-white"
+                  >
+                    Revisar antes de pagar
+                  </button>
+                </div>
+
+                {subtleNudge && (
+                  <p className="text-xs text-sky-700 mt-1 flex items-center gap-1">
+                    💡 Sugerencia: revisa con calma el servicio, el monto y la
+                    tarjeta antes de continuar.
+                  </p>
+                )}
+              </>
+            )}
+
+            {step === "confirm" && (
+              <div className="space-y-3">
+                <p className="text-slate-800">
+                  Vas a pagar{" "}
+                  <strong>${Number(amount).toFixed(2)} MXN</strong> de{" "}
+                  <strong>{service}</strong> con{" "}
+                  <strong>
+                    {card === "bienestar"
+                      ? "Tarjeta del Bienestar"
+                      : "Cuenta principal"}
+                  </strong>
+                  .
+                </p>
+                <p className="text-xs text-slate-600">
+                  Asegúrate de que reconoces este recibo y que el monto es
+                  correcto.
+                </p>
+                {voiceEnabled && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakText(
+                        `Estás por pagar ${amount} pesos de ${service} con tu ${
+                          card === "bienestar"
+                            ? "tarjeta del Bienestar"
+                            : "cuenta principal"
+                        }.`
+                      )
+                    }
+                    className="text-xs text-sky-700 underline"
+                  >
+                    🔊 Escuchar resumen antes de pagar
+                  </button>
+                )}
+                <div className="flex justify-end gap-3 mt-3">
+                  <button
+                    onClick={() => setStep("form")}
+                    className="px-4 py-2 rounded-2xl border border-slate-400 text-sm"
+                  >
+                    Cambiar datos
+                  </button>
+                  <button
+                    onClick={handleConfirm}
+                    className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-semibold shadow text-sm"
+                  >
+                    Confirmar pago
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === "done" && (
+              <div className="space-y-3">
+                <p className="text-emerald-600 text-lg">
+                  ✅ ¡Listo! Tu servicio quedó pagado.
+                </p>
+                <p className="text-sm text-slate-700">
+                  Guardamos un comprobante digital para ti. Recuerda que nunca
+                  te pediremos tu NIP por teléfono o mensaje.
+                </p>
+                {voiceEnabled && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakText(
+                        "Tu servicio se pagó correctamente. Recuerda que nunca debes compartir tu NIP por teléfono."
+                      )
+                    }
+                    className="text-xs text-sky-700 underline"
+                  >
+                    🔊 Escuchar confirmación
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // ================ DASHBOARD PRINCIPAL ================
+
+      function Dashboard({ onboarding, profile, onLogout }) {
+        const [section, setSection] = useState("home");
+        const [nudgeResult, setNudgeResult] = useState(null);
+        const [riskResult, setRiskResult] = useState(null);
+        const [forceHighContrast, setForceHighContrast] = useState(false);
+        const [forceLargeText, setForceLargeText] = useState(false);
+        const recognitionRef = React.useRef(null);
+        const [voiceNavActive, setVoiceNavActive] = useState(
+          profile.theme === "voice"
+        );
+        const [voiceSupported, setVoiceSupported] = useState(false);
+        const [pendingNav, setPendingNav] = useState(null); // "home" | "balance" | "transfer_frequent" | "transfer_new" | "bills"
+        const [lastHeard, setLastHeard] = useState("");
+        const [isListening, setIsListening] = useState(false);
+        const commandHandlerRef = React.useRef(null);
+
+        const isHighContrast =
+          profile.theme === "high-contrast" || forceHighContrast;
+        const themeBg = isHighContrast ? "bg-slate-900" : "bg-slate-100";
+        const themeText = isHighContrast ? "text-slate-50" : "text-slate-900";
+
+        React.useEffect(() => {
+          const body = document.getElementById("app-body");
+          const htmlEl = document.documentElement;
+          if (!body || !htmlEl) return;
+          if (isHighContrast) {
+            body.classList.add("theme-high-contrast");
+          } else {
+            body.classList.remove("theme-high-contrast");
+          }
+          if (forceLargeText) {
+            body.classList.add("theme-large-text");
+            htmlEl.classList.add("theme-large-text");
+          } else {
+            body.classList.remove("theme-large-text");
+            htmlEl.classList.remove("theme-large-text");
+          }
+        }, [isHighContrast, forceLargeText]);
+
+        React.useEffect(() => {
+          if (typeof window === "undefined") return;
+          const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          setVoiceSupported(!!SR);
+        }, []);
+
+        React.useEffect(() => {
+          function handleKeyDown(e) {
+            if (!e.altKey || e.shiftKey || e.ctrlKey || e.metaKey) return;
+            switch (e.code) {
+              case "Digit1":
+                setSection("home");
+                e.preventDefault();
+                break;
+              case "Digit2":
+                setSection("balance");
+                e.preventDefault();
+                break;
+              case "Digit3":
+                setSection("transfer_frequent");
+                e.preventDefault();
+                break;
+              case "Digit4":
+                setSection("transfer_new");
+                e.preventDefault();
+                break;
+              case "Digit5":
+                setSection("bills");
+                e.preventDefault();
+                break;
+              default:
+                break;
+            }
+          }
+          window.addEventListener("keydown", handleKeyDown);
+          return () => window.removeEventListener("keydown", handleKeyDown);
+        }, []);
+
+        function proposeNav(target, label) {
+          setPendingNav(target);
+          setLastHeard(label.toLowerCase());
+          speakText(`¿Quieres ir a ${label}? Di "sí" o "no".`);
+        }
+
+        function handleVoiceCommand(rawText) {
+          if (!rawText) return;
+          let text = rawText.toLowerCase();
+          text = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+          // track last heard
+          setLastHeard(text);
+
+          // If waiting for confirmation
+          if (pendingNav) {
+            const yesRe = /(\bsi\b|\bsí\b|confirmar|correcto|adelante|vamos)/;
+            const noRe = /(\bno\b|cancelar|mejor no|regresar)/;
+            if (yesRe.test(text)) {
+              setSection(pendingNav);
+              const labels = {
+                home: "Inicio",
+                balance: "Saldos",
+                transfer_frequent: "Transferir a contacto frecuente",
+                transfer_new: "Transferir a contacto nuevo",
+                bills: "Pagar servicios",
+              };
+              speakText(`Abriendo ${labels[pendingNav]}.`);
+              setPendingNav(null);
+              return;
+            }
+            if (noRe.test(text)) {
+              speakText("De acuerdo, no navegamos.");
+              setPendingNav(null);
+              return;
+            }
+            if (text.includes("repetir")) {
+              const labels = {
+                home: "Inicio",
+                balance: "Saldos",
+                transfer_frequent: "Transferir a contacto frecuente",
+                transfer_new: "Transferir a contacto nuevo",
+                bills: "Pagar servicios",
+              };
+              speakText(`¿Quieres ir a ${labels[pendingNav]}? Di "sí" o "no".`);
+              return;
+            }
+            // fall-through: keep waiting for yes/no
+          }
+
+          // Help & control commands
+          if (text.includes("ayuda")) {
+            speakText("Puedes decir: inicio, ver mis saldos, pagar servicios, enviar dinero nuevo o frecuente. Para confirmar, di: sí o no.");
+            return;
+          }
+          if (text.includes("desactivar voz") || text.includes("apagar voz")) {
+            setVoiceNavActive(false);
+            speakText("Navegación por voz desactivada.");
+            return;
+          }
+
+          // Navigation intents
+          if (text.includes("inicio") || text.includes("principal") || text.includes("home")) {
+            proposeNav("home", "Inicio");
+            return;
+          }
+          if (text.includes("saldo") || text.includes("saldos") || text.includes("cuentas")) {
+            proposeNav("balance", "Saldos");
+            return;
+          }
+          if (text.includes("pagar") || text.includes("pagos") || text.includes("servicio") || text.includes("recibo")) {
+            proposeNav("bills", "Pagar servicios");
+            return;
+          }
+          if (text.includes("enviar") || text.includes("transferir") || text.includes("mandar dinero")) {
+            if (text.includes("nuevo") || text.includes("nueva")) {
+              proposeNav("transfer_new", "Transferir a contacto nuevo");
+            } else if (text.includes("frecuente") || text.includes("conocido") || text.includes("guardado")) {
+              proposeNav("transfer_frequent", "Transferir a contacto frecuente");
+            } else {
+              // default to frequent if unspecified
+              proposeNav("transfer_frequent", "Transferir a contacto frecuente");
+            }
+            return;
+          }
+        }
+        React.useEffect(() => {
+          commandHandlerRef.current = handleVoiceCommand;
+        });
+
+        React.useEffect(() => {
+          if (!voiceSupported) return;
+
+          const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SR) return;
+
+          // Si no está activa la navegación por voz, detenemos y limpiamos
+          if (!voiceNavActive) {
+            if (recognitionRef.current) {
+              recognitionRef.current.onresult = null;
+              recognitionRef.current.onend = null;
+              recognitionRef.current.onerror = null;
+              recognitionRef.current.stop();
+              recognitionRef.current = null;
+            }
+            return;
+          }
+
+          const rec = new SR();
+          rec.lang = "es-MX";
+          rec.continuous = true;
+          rec.interimResults = false;
+
+          rec.onstart = () => setIsListening(true);
+          rec.onend = () => setIsListening(false);
+
+          rec.onresult = (event) => {
+            const lastResult = event.results[event.results.length - 1];
+            if (!lastResult || !lastResult[0]) return;
+            const transcript = lastResult[0].transcript;
+            const handler = commandHandlerRef.current;
+            if (handler) handler(transcript);
+          };
+
+          rec.onerror = (err) => {
+            console.warn("Error en reconocimiento de voz:", err);
+          };
+
+          rec.onend = () => {
+            setIsListening(false);
+            // Si sigue activo, intentamos reiniciar para seguir escuchando
+            if (voiceNavActive) {
+              try {
+                rec.start();
+              } catch (e) {
+                console.warn("No se pudo reiniciar reconocimiento:", e);
+              }
+            }
+          };
+
+          try {
+            rec.start();
+            recognitionRef.current = rec;
+            speakText(
+              "Navegación por voz activada. Di: inicio, ver mis saldos, pagar servicios, enviar dinero nuevo o frecuente. Para confirmar, di: sí o no. Di: ayuda, para ejemplos."
+            );
+          } catch (e) {
+            console.warn("No se pudo iniciar reconocimiento de voz:", e);
+            setVoiceNavActive(false);
+          }
+
+          return () => {
+            rec.onresult = null;
+            rec.onend = null;
+            rec.onerror = null;
+            try {
+              rec.stop();
+            } catch (e) {}
+            recognitionRef.current = null;
+            setIsListening(false);
+          };
+        }, [voiceSupported, voiceNavActive]);
+
+        // Anunciar sección actual al cambiar (solo si voz activa)
+        React.useEffect(() => {
+          if (!voiceNavActive) return;
+          const labels = {
+            home: "Inicio",
+            balance: "Saldos",
+            transfer_frequent: "Transferir a contacto frecuente",
+            transfer_new: "Transferir a contacto nuevo",
+            bills: "Pagar servicios",
+          };
+          speakText(`Estás en ${labels[section]}.`);
+        }, [section, voiceNavActive]);
+
+        function renderMain() {
+          if (section === "home") {
+            return (
+              <div className="space-y-4">
+                <Card title="Resumen rápido">
+                  <p className="text-sm text-slate-700 mb-2">
+                    Hola{" "}
+                    <strong>
+                      {onboarding.name || "persona usuaria"}
+                    </strong>
+                    , aquí puedes:
+                  </p>
+                  <div className="grid md:grid-cols-3 gap-3 text-sm">
+                    <button
+                      onClick={() => setSection("balance")}
+                      className="bg-sky-50 rounded-2xl px-3 py-3 text-left hover:bg-sky-100 border border-sky-100"
+                    >
+                      💰 <strong>Ver tus saldos</strong>
+                      <p className="text-xs text-slate-600">
+                        Revisa cuánto dinero tienes disponible.
+                      </p>
+                    </button>
+                    <button
+                      onClick={() => setSection("transfer_frequent")}
+                      className="bg-emerald-50 rounded-2xl px-3 py-3 text-left hover:bg-emerald-100 border border-emerald-100"
+                    >
+                      🤝 <strong>Enviar a tus contactos</strong>
+                      <p className="text-xs text-slate-600">
+                        Personas a las que ya has enviado dinero.
+                      </p>
+                    </button>
+                    <button
+                      onClick={() => setSection("bills")}
+                      className="bg-amber-50 rounded-2xl px-3 py-3 text-left hover:bg-amber-100 border border-amber-100"
+                    >
+                      🧾 <strong>Pagar servicios</strong>
+                      <p className="text-xs text-slate-600">
+                        Luz, agua, teléfono y más.
+                      </p>
+                    </button>
+                  </div>
+                </Card>
+                <Card title="Saldos principales">
+                  <BalanceScreen profile={profile} />
+                </Card>
+              </div>
+            );
+          }
+
+          if (section === "balance") {
+            return (
+              <Card title="Consulta de saldos">
+                <BalanceScreen profile={profile} />
+              </Card>
+            );
+          }
+
+          if (section === "transfer_frequent") {
+            return (
+              <Card title="Transferir a contacto frecuente">
+                <TransferScreen
+                  profile={profile}
+                  onboarding={onboarding}
+                  mode="frequent"
+                  onNudgeUpdate={setNudgeResult}
+                  onRiskUpdate={setRiskResult}
+                  nudgeResult={nudgeResult}
+                />
+              </Card>
+            );
+          }
+
+          if (section === "transfer_new") {
+            return (
+              <Card title="Transferir a contacto nuevo">
+                <TransferScreen
+                  profile={profile}
+                  onboarding={onboarding}
+                  mode="new"
+                  onNudgeUpdate={setNudgeResult}
+                  onRiskUpdate={setRiskResult}
+                  nudgeResult={nudgeResult}
+                />
+              </Card>
+            );
+          }
+
+          if (section === "bills") {
+            return (
+              <Card title="Pagar servicios (luz, agua, teléfono)">
+                <BillsScreen
+                  profile={profile}
+                  onNudgeUpdate={setNudgeResult}
+                  onRiskUpdate={setRiskResult}
+                  nudgeResult={nudgeResult}
+                />
+              </Card>
+            );
+          }
+
+          return null;
+        }
+
+        return (
+          <div className={themeBg + " min-h-screen py-4 md:py-6"}>
+            <div className="max-w-6xl mx-auto px-4">
+              <header className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+                <div>
+                  <div className="flex items-start gap-3 flex-wrap">
+                    <img
+                      src="./logo-banca-inclusiva.png"
+                      alt="Logotipo de Banca Inclusiva"
+                      className="w-10 h-10 min-w-[40px] rounded-full border border-slate-400 bg-white flex-shrink-0"
+                    />
+                    <div>
+                      <h1
+                        className={
+                          "text-2xl md:text-3xl font-bold " + themeText
+                        }
+                      >
+                        B-Accesible
+                      </h1>
+                      <p className={themeText + " opacity-80 text-sm mt-1"}>
+                        Una app sencilla y accesible para usar tu dinero con seguridad.
+                      </p>
+                    </div>
+                  </div>
+                  <p className={themeText + " opacity-80 text-sm mt-1"}>
+                    Usuario demo:{" "}
+                    <strong>{onboarding.name || "Persona usuaria"}</strong>.
+                    Adaptamos la pantalla según tu edad, tu visión y qué la comodidad que te sientes con el celular.
+                  </p>
+                  {profile.lowLiteracy && (
+                    <p className="text-xs text-amber-300 mt-1">
+                      Modo sencillo activado: usamos iconos y lenguaje simple.
+                    </p>
+                  )}
+                  {profile.theme === "high-contrast" && (
+                    <p className="text-xs text-sky-200 mt-1">
+                      Modo visual adaptado: alto contraste y opción de voz en
+                      elementos clave.
+                    </p>
+                  )}
+                </div>
+                <div className="text-right">
+                  <Badge color="blue">
+                    {profile.theme === "high-contrast"
+                      ? "Alto contraste"
+                      : profile.theme === "voice"
+                      ? "Asistido por voz"
+                      : "Estándar accesible"}
+                  </Badge>
+                  <div className="mt-1">
+                    <Badge color="yellow">
+                      Nudging: {profile.nudgingLevel}
+                    </Badge>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForceHighContrast((v) => !v)}
+                    className="mt-2 px-3 py-1.5 rounded-full border border-slate-400 bg-white text-xs text-slate-800 hover:bg-slate-100 block ml-auto"
+                    aria-pressed={forceHighContrast}
+                  >
+                    {forceHighContrast
+                      ? "Quitar alto contraste"
+                      : "Activar alto contraste"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForceLargeText((v) => !v)}
+                    className="mt-2 px-3 py-1.5 rounded-full border border-slate-400 bg-white text-xs text-slate-800 hover:bg-slate-100 block ml-auto"
+                    aria-pressed={forceLargeText}
+                  >
+                    {forceLargeText ? "Texto normal" : "Texto más grande"}
+                  </button>
+                  {voiceSupported && (
+                    <button
+                      type="button"
+                      onClick={() => setVoiceNavActive((v) => !v)}
+                      className="mt-2 px-3 py-1.5 rounded-full border border-slate-400 bg-white text-xs text-slate-800 hover:bg-slate-100 block ml-auto"
+                      aria-pressed={voiceNavActive}
+                    >
+                      {voiceNavActive
+                        ? "Navegación por voz activada"
+                        : "Activar navegación por voz"}
+                    </button>
+                  )}
+                  <button
+                    onClick={onLogout}
+                    className="mt-2 ml-2 px-3 py-1.5 rounded-full bg-slate-700 text-xs text-slate-100"
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+              </header>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">{renderMain()}</div>
+
+                <div className="space-y-4">
+                  <Card title="Perfil de accesibilidad">
+                    <p className="text-sm mb-2 text-slate-700">
+                      La app se adaptó a ti así:
+                    </p>
+                    <ul className="text-xs space-y-1 text-slate-700">
+                      <li>
+                        • Tema:{" "}
+                        <strong>
+                          {profile.theme === "high-contrast"
+                            ? "Alto contraste (discapacidad visual / adulto mayor)"
+                            : profile.theme === "voice"
+                            ? "Asistido por voz"
+                            : "Estándar accesible"}
+                        </strong>
+                      </li>
+                      <li>
+                        • Tamaño de letra:{" "}
+                        <strong>{profile.fontScale.toFixed(1)}x</strong>
+                      </li>
+                      <li>
+                        • Nivel de ayuda:{" "}
+                        <strong>{profile.nudgingLevel}</strong>
+                      </li>
+                      <li>
+                        • Modo sencillo:{" "}
+                        <strong>
+                          {profile.lowLiteracy ? "Activado" : "Desactivado"}
+                        </strong>
+                      </li>
+                    </ul>
+                  </Card>
+                  <Card title="Control por voz">
+                    <div className="text-xs text-slate-700 space-y-1">
+                      <p>
+                        Estado: <strong>{voiceSupported ? (voiceNavActive ? (isListening ? "escuchando" : "en pausa") : "apagado") : "no disponible"}</strong>
+                      </p>
+                      {lastHeard && (
+                        <p className="break-words">Último comando: <em>{lastHeard}</em></p>
+                      )}
+                      {pendingNav && (
+                        <p>
+                          Confirmación pendiente: <strong>
+                            {pendingNav === "home" && "Ir a Inicio"}
+                            {pendingNav === "balance" && "Ir a Saldos"}
+                            {pendingNav === "transfer_frequent" && "Transferir a contacto frecuente"}
+                            {pendingNav === "transfer_new" && "Transferir a contacto nuevo"}
+                            {pendingNav === "bills" && "Pagar servicios"}
+                          </strong>
+                          <br />Di: "sí" para confirmar o "no" para cancelar.
+                        </p>
+                      )}
+                      <details className="mt-1">
+                        <summary>Comandos rápidos</summary>
+                        <ul className="list-disc list-inside">
+                          <li>“inicio”</li>
+                          <li>“ver mis saldos”</li>
+                          <li>“pagar servicios”</li>
+                          <li>“enviar dinero nuevo / frecuente”</li>
+                          <li>“ayuda” | “desactivar voz”</li>
+                        </ul>
+                      </details>
+                    </div>
+                  </Card>
+
+                  <Card title="Ayuda inteligente en la pantalla">
+                    <div aria-live="polite">
+                      {!nudgeResult && (
+                        <p className="text-xs text-slate-700">
+                          Cuando te detienes, repites errores o pides ayuda, el sistema
+                          te ofrece apoyo extra en la pantalla. Aquí mostramos el resultado
+                          para explicar cómo decide ayudarte.
+                        </p>
+                      )}
+                      {nudgeResult && (
+                        <div className="text-xs space-y-2 text-slate-700">
+                          <p>
+                            Dificultad estimada:{" "}
+                            <strong>
+                              {(nudgeResult.difficultyScore * 100).toFixed(0)}%
+                            </strong>
+                          </p>
+                          <p>
+                            Necesitas ayuda:{" "}
+                            <strong>
+                              {nudgeResult.needsHelp ? "Sí" : "No por ahora"}
+                            </strong>
+                          </p>
+                          <p>
+                            Tipo de ayuda:{" "}
+                            <strong>{nudgeResult.nudgeType}</strong>
+                          </p>
+                          <p className="text-[11px] opacity-80">
+                            {nudgeResult.reason}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+
+                  <Card title="Alerta de seguridad en tus movimientos">
+                    <div aria-live="polite">
+                      {!riskResult && (
+                        <p className="text-xs text-slate-700">
+                          Cuando haces transferencias o pagos, el sistema revisa si algo
+                          se ve raro para ayudarte a evitar fraudes, sin bloquear tus decisiones.
+                          Aquí lo mostramos para que se entienda cómo funciona.
+                        </p>
+                      )}
+                      {riskResult && (
+                        <div className="text-xs space-y-2 text-slate-700">
+                          <p>
+                            Nivel de riesgo:{" "}
+                            <strong>{riskResult.riskLevel}</strong>
+                          </p>
+                          <p>
+                            Score:{" "}
+                            <strong>
+                              {(riskResult.riskScore * 100).toFixed(0)}%
+                            </strong>
+                          </p>
+                          <p className="font-semibold">Motivos:</p>
+                          <ul className="list-disc list-inside">
+                            {riskResult.factors.map((f, i) => (
+                              <li key={i}>{f}</li>
+                            ))}
+                          </ul>
+                          <p className="text-[11px] opacity-80 mt-1">
+                            El sistema no decide por la persona usuaria; solo señala
+                            lo que podría ser riesgoso.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+
+                  <Card title="Accesos rápidos">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <button
+                        onClick={() => setSection("transfer_frequent")}
+                        className="px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100"
+                      >
+                        🤝 Enviar a contacto frecuente
+                      </button>
+                      <button
+                        onClick={() => setSection("transfer_new")}
+                        className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100"
+                      >
+                        👤 Enviar a contacto nuevo
+                      </button>
+                      <button
+                        onClick={() => setSection("bills")}
+                        className="px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-100"
+                      >
+                        🧾 Pagar servicios
+                      </button>
+                    </div>
+                  </Card>
+                </div>
+              </div>
+
+              <nav className="mt-4 flex gap-2 text-xs text-slate-600">
+                <button
+                  onClick={() => setSection("home")}
+                  className={
+                    "px-3 py-1.5 rounded-full border " +
+                    (section === "home"
+                      ? "bg-slate-800 text-slate-50 border-slate-800"
+                      : "bg-white")
+                  }
+                >
+                  Inicio
+                </button>
+                <button
+                  onClick={() => setSection("balance")}
+                  className={
+                    "px-3 py-1.5 rounded-full border " +
+                    (section === "balance"
+                      ? "bg-slate-800 text-slate-50 border-slate-800"
+                      : "bg-white")
+                  }
+                >
+                  Saldos
+                </button>
+                <button
+                  onClick={() => setSection("transfer_frequent")}
+                  className={
+                    "px-3 py-1.5 rounded-full border " +
+                    (section === "transfer_frequent"
+                      ? "bg-slate-800 text-slate-50 border-slate-800"
+                      : "bg-white")
+                  }
+                >
+                  Transferir (frecuentes)
+                </button>
+                <button
+                  onClick={() => setSection("transfer_new")}
+                  className={
+                    "px-3 py-1.5 rounded-full border " +
+                    (section === "transfer_new"
+                      ? "bg-slate-800 text-slate-50 border-slate-800"
+                      : "bg-white")
+                  }
+                >
+                  Transferir (nuevo)
+                </button>
+                <button
+                  onClick={() => setSection("bills")}
+                  className={
+                    "px-3 py-1.5 rounded-full border " +
+                    (section === "bills"
+                      ? "bg-slate-800 text-slate-50 border-slate-800"
+                      : "bg-white")
+                  }
+                >
+                  Pagar servicios
+                </button>
+              </nav>
+              <p className="mt-2 text-[11px] text-slate-500">
+                También puedes usar atajos de teclado: Alt+1 Inicio, Alt+2 Saldos,
+                Alt+3 Transferir frecuentes, Alt+4 Transferir nuevo, Alt+5 Pagar servicios.
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      // ================ APP ROOT ================
+
+      function App() {
+        const [phase, setPhase] = useState("login");
+        const [onboarding, setOnboarding] = useState(null);
+        const [profile, setProfile] = useState(null);
+
+        function handleLogin() {
+          setPhase("onboarding");
+        }
+
+        function handleOnboardingComplete(onb, prof) {
+          setOnboarding(onb);
+          setProfile(prof);
+          setPhase("dashboard");
+        }
+
+        function handleLogout() {
+          setPhase("login");
+          setOnboarding(null);
+          setProfile(null);
+        }
+
+        let screen = null;
+
+        if (phase === "login") {
+          screen = <LoginScreen onLogin={handleLogin} />;
+        } else if (phase === "onboarding") {
+          screen = <OnboardingScreen onComplete={handleOnboardingComplete} />;
+        } else if (phase === "dashboard" && onboarding && profile) {
+          screen = (
+            <Dashboard
+              onboarding={onboarding}
+              profile={profile}
+              onLogout={handleLogout}
+            />
+          );
+        } else {
+          screen = <div>Cargando…</div>;
+        }
+
+        return (
+          <>
+            {screen}
+            <div className="fixed bottom-4 right-4 z-50">
+              <RecordingControls />
+            </div>
+          </>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>

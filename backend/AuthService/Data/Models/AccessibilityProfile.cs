@@ -9,17 +9,21 @@ public partial class AccessibilityProfile
 
     public Guid UserId { get; set; }
 
-    public string Theme { get; set; } = null!;
+    public string? Alias { get; set; }
 
-    public bool ScreenReaderMode { get; set; }
+    public string? AgeRange { get; set; }
+
+    public string Theme { get; set; } = null!;
 
     public decimal FontScale { get; set; }
 
+    public bool VoiceFeedback { get; set; }
+
+    public bool ScreenReaderMode { get; set; }
+
     public string NudgingLevel { get; set; } = null!;
 
-    public decimal ColorContrastRatio { get; set; }
-
-    public bool VoiceFeedback { get; set; }
+    public string? LiteracyLevel { get; set; }
 
     public DateTime UpdatedAt { get; set; }
 

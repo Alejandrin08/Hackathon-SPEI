@@ -14,20 +14,15 @@ GO
 -- -----------------------------------------------------
 CREATE TABLE users (
     id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
-    alias VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NULL,
+    hashed_password VARCHAR(255) NOT NULL,
+    [user_name] VARCHAR(100) NOT NULL,
     preferred_language VARCHAR(10) NOT NULL DEFAULT 'es-MX',
-    demo_mode BIT NOT NULL DEFAULT 0,
     created_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     updated_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    hashed_password VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(20) NULL,
-    email VARCHAR(255) NULL,
     
     CONSTRAINT PK_users PRIMARY KEY (id),
     
-    CONSTRAINT UQ_users_alias UNIQUE (alias),
-    
-    CONSTRAINT UQ_users_phone_number UNIQUE (phone_number),
     CONSTRAINT UQ_users_email UNIQUE (email)
 );
 GO
@@ -39,14 +34,17 @@ GO
 CREATE TABLE accessibility_profiles (
     id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     user_id UNIQUEIDENTIFIER NOT NULL,
-    theme VARCHAR(50) NOT NULL DEFAULT 'light',
-    screen_reader_mode BIT NOT NULL DEFAULT 0,
-    font_scale DECIMAL(3, 2) NOT NULL DEFAULT 1.0,
-    nudging_level VARCHAR(50) NOT NULL DEFAULT 'medium',
-    color_contrast_ratio DECIMAL(4, 2) NOT NULL DEFAULT 4.5,
-    voice_feedback BIT NOT NULL DEFAULT 0,
+    
+    alias VARCHAR(100) NULL, 
+    age_range VARCHAR(50) NULL,   
+    theme VARCHAR(50) NOT NULL DEFAULT 'claro', -- "claro", "oscuro", "alto_contraste"
+    font_scale DECIMAL(2, 1) NOT NULL DEFAULT 1.0, -- Resultado de "¿Te cuesta leer texto pequeño?"
+    voice_feedback BIT NOT NULL DEFAULT 0, -- "¿Necesita apoyo de voz? si/no"
+    screen_reader_mode BIT NOT NULL DEFAULT 0, -- "¿Usar lector de pantalla? si/no"
+    nudging_level VARCHAR(50) NOT NULL DEFAULT 'medium', -- "¿Cómo se siente? 'low' (muy comoda), 'medium' (mas o menos), 'high' (cuesta bastante)"
+    literacy_level VARCHAR(50) NULL, -- "¿Dificultad leer/escribir? 'no_problemas', 'a_veces_cuesta', 'cuesta'"
     updated_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-
+    
     CONSTRAINT PK_accessibility_profiles PRIMARY KEY (id),
 
     CONSTRAINT FK_accessibility_profiles_users 
@@ -54,7 +52,12 @@ CREATE TABLE accessibility_profiles (
         REFERENCES users(id)
         ON DELETE CASCADE, 
 
-    CONSTRAINT UQ_accessibility_profiles_user_id UNIQUE (user_id)
+    CONSTRAINT UQ_accessibility_profiles_user_id UNIQUE (user_id),
+    
+    CONSTRAINT CHK_accessibility_theme CHECK (theme IN ('claro', 'oscuro', 'alto_contraste')),
+    CONSTRAINT CHK_accessibility_nudging_level CHECK (nudging_level IN ('low', 'medium', 'high')),
+    CONSTRAINT CHK_accessibility_age_range CHECK (age_range IN ('18_30', '31_50', '51_60', 'mas_60', NULL)),
+    CONSTRAINT CHK_accessibility_literacy_level CHECK (literacy_level IN ('no_problemas', 'a_veces_cuesta', 'cuesta', NULL))
 );
 GO
 
@@ -65,10 +68,9 @@ GO
 CREATE TABLE consent_records (
     id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     user_id UNIQUEIDENTIFIER NOT NULL,
-    type VARCHAR(100) NOT NULL, -- Ej. 'OPEN_FINANCE_READ', 'MARKETING'
     granted BIT NOT NULL DEFAULT 0,
     timestamp DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    revoked_at DATETIME2 NULL, -- Es NULLEABLE porque puede no estar revocado
+    revoked_at DATETIME2 NULL, 
 
     CONSTRAINT PK_consent_records PRIMARY KEY (id),
 

@@ -38,14 +38,22 @@ public partial class AuthDbContext : DbContext
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("id");
-            entity.Property(e => e.ColorContrastRatio)
-                .HasDefaultValue(4.5m)
-                .HasColumnType("decimal(4, 2)")
-                .HasColumnName("color_contrast_ratio");
+            entity.Property(e => e.AgeRange)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("age_range");
+            entity.Property(e => e.Alias)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("alias");
             entity.Property(e => e.FontScale)
                 .HasDefaultValue(1.0m)
-                .HasColumnType("decimal(3, 2)")
+                .HasColumnType("decimal(2, 1)")
                 .HasColumnName("font_scale");
+            entity.Property(e => e.LiteracyLevel)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("literacy_level");
             entity.Property(e => e.NudgingLevel)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -55,7 +63,7 @@ public partial class AuthDbContext : DbContext
             entity.Property(e => e.Theme)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasDefaultValue("light")
+                .HasDefaultValue("claro")
                 .HasColumnName("theme");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getutcdate())")
@@ -80,10 +88,6 @@ public partial class AuthDbContext : DbContext
             entity.Property(e => e.Timestamp)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnName("timestamp");
-            entity.Property(e => e.Type)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("type");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.ConsentRecords)
@@ -97,19 +101,12 @@ public partial class AuthDbContext : DbContext
 
             entity.HasIndex(e => e.Email, "UQ_users_email").IsUnique();
 
-            entity.HasIndex(e => e.PhoneNumber, "UQ_users_phone_number").IsUnique();
-
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("id");
-            entity.Property(e => e.Alias)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("alias");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnName("created_at");
-            entity.Property(e => e.DemoMode).HasColumnName("demo_mode");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -118,10 +115,6 @@ public partial class AuthDbContext : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("hashed_password");
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("phone_number");
             entity.Property(e => e.PreferredLanguage)
                 .HasMaxLength(10)
                 .IsUnicode(false)
@@ -130,6 +123,10 @@ public partial class AuthDbContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnName("updated_at");
+            entity.Property(e => e.UserName)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("user_name");
         });
 
         OnModelCreatingPartial(modelBuilder);

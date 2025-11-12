@@ -21,8 +21,8 @@ namespace AuthService.Services.Implementation
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Alias),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email), 
+                new Claim(ClaimTypes.Name, user.UserName)
             };
 
             var jwtKey = _config["JwtSettings:SecretKey"];
@@ -50,7 +50,6 @@ namespace AuthService.Services.Implementation
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            Console.WriteLine($"Token generado para usuario: {user.Alias}");
             return tokenHandler.WriteToken(token);
         }
     }

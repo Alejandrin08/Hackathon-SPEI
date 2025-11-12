@@ -1,13 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY *.csproj .
-
-RUN dotnet restore
+COPY OpenFinanceService.csproj ./
+RUN dotnet restore "OpenFinanceService.csproj"
 
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
-
+RUN dotnet publish "OpenFinanceService.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .

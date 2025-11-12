@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\alesa\\OneDrive\\Escritorio\\Hackathon\\lector-de-pantalla\\backend\\backend\\OcelotGateway\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F98EAD9D-1D7A-44AE-B08C-21FC020ACA2D}|API Gateway.csproj|c:\\users\\alesa\\onedrive\\escritorio\\hackathon\\lector-de-pantalla\\backend\\backend\\ocelotgateway\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{F98EAD9D-1D7A-44AE-B08C-21FC020ACA2D}|API Gateway.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F98EAD9D-1D7A-44AE-B08C-21FC020ACA2D}|API Gateway.csproj|c:\\users\\alesa\\onedrive\\escritorio\\hackathon\\lector-de-pantalla\\backend\\backend\\ocelotgateway\\ocelot.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{F98EAD9D-1D7A-44AE-B08C-21FC020ACA2D}|API Gateway.csproj|solutionrelative:ocelot.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F98EAD9D-1D7A-44AE-B08C-21FC020ACA2D}|API Gateway.csproj|c:\\users\\alesa\\onedrive\\escritorio\\hackathon\\lector-de-pantalla\\backend\\backend\\ocelotgateway\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{F98EAD9D-1D7A-44AE-B08C-21FC020ACA2D}|API Gateway.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F98EAD9D-1D7A-44AE-B08C-21FC020ACA2D}|API Gateway.csproj|c:\\users\\alesa\\onedrive\\escritorio\\hackathon\\lector-de-pantalla\\backend\\backend\\ocelotgateway\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -22,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -62,16 +62,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\alesa\\OneDrive\\Escritorio\\Hackathon\\lector-de-pantalla\\backend\\backend\\OcelotGateway\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
               "ToolTip": "C:\\Users\\alesa\\OneDrive\\Escritorio\\Hackathon\\lector-de-pantalla\\backend\\backend\\OcelotGateway\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-11-12T01:54:43.895Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-12T01:54:43.895Z"
             },
             {
               "$type": "Document",
@@ -87,15 +86,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "ocelot.json",
               "DocumentMoniker": "C:\\Users\\alesa\\OneDrive\\Escritorio\\Hackathon\\lector-de-pantalla\\backend\\backend\\OcelotGateway\\ocelot.json",
               "RelativeDocumentMoniker": "ocelot.json",
               "ToolTip": "C:\\Users\\alesa\\OneDrive\\Escritorio\\Hackathon\\lector-de-pantalla\\backend\\backend\\OcelotGateway\\ocelot.json",
               "RelativeToolTip": "ocelot.json",
-              "ViewState": "AgIAAEYAAAAAAAAAAAAgwGAAAAAGAAAAAAAAAA==",
+              "ViewState": "AgIAALUAAAAAAAAAAAAAAMQAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-11-12T01:20:51.738Z"
+              "WhenOpened": "2025-11-12T01:20:51.738Z",
+              "EditorCaption": ""
             }
           ]
         },

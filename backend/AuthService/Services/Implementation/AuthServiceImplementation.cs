@@ -24,55 +24,50 @@ namespace AuthService.Services.Implementation
 
         public async Task<User> RegisterAsync(RegisterRequestDto request)
         {
-            var existingUserByAlias = await _context.Users
-                .FirstOrDefaultAsync(u => u.Alias == request.Alias);
-
-
             if (!string.IsNullOrEmpty(request.Email))
             {
                 var existingUserByEmail = await _context.Users
                     .FirstOrDefaultAsync(u => u.Email == request.Email);
-
                 if (existingUserByEmail != null)
                 {
                     throw new InvalidOperationException($"El email '{request.Email}' ya está registrado.");
                 }
             }
 
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
-            {
-                var existingUserByPhone = await _context.Users
-                    .FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber);
-
-                if (existingUserByPhone != null)
-                {
-                    throw new InvalidOperationException($"El teléfono '{request.PhoneNumber}' ya está registrado.");
-                }
-            }
-
             var newUser = new User
             {
                 Id = Guid.NewGuid(),
-                Alias = request.Alias,
+                UserName = request.UserName, 
                 Email = request.Email,
-                PhoneNumber = request.PhoneNumber,
-                PreferredLanguage = request.PreferredLanguage,
-                DemoMode = false,
+                PreferredLanguage = request.PreferredLanguage ?? "es-MX",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
 
             newUser.HashedPassword = _passwordHasher.HashPassword(newUser, request.Password);
 
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
 
+                var newProfile = new AccessibilityProfile
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = newUser.Id,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                _context.AccessibilityProfiles.Add(newProfile);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
                 return newUser;
             }
             catch (DbUpdateException ex)
             {
+                await transaction.RollbackAsync();
                 var innerMessage = ex.InnerException?.Message ?? ex.Message;
                 throw new InvalidOperationException($"Error al registrar: {innerMessage}", ex);
             }
@@ -101,11 +96,10 @@ namespace AuthService.Services.Implementation
 
             var token = _tokenService.GenerateToken(user);
 
-            
             return new TokenResponseDto
             {
                 Token = token,
-                ExpiresIn = 60
+                ExpiresIn = 60 
             };
         }
     }

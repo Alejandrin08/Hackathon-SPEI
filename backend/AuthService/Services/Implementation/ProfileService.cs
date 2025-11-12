@@ -2,7 +2,7 @@
 using AuthService.DTOs.Profile;
 using AuthService.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims; 
+using System.Security.Claims;
 
 namespace AuthService.Services.Implementation
 {
@@ -18,16 +18,13 @@ namespace AuthService.Services.Implementation
         public async Task<UserProfileDto> GetUserProfileAsync(Guid userId)
         {
             var user = await _context.Users
-                .AsNoTracking() 
+                .AsNoTracking()
                 .Where(u => u.Id == userId)
-                .Select(u => new UserProfileDto 
+                .Select(u => new UserProfileDto
                 {
                     Id = u.Id,
-                    Alias = u.Alias,
                     Email = u.Email,
-                    PhoneNumber = u.PhoneNumber,
                     PreferredLanguage = u.PreferredLanguage,
-                    DemoMode = u.DemoMode
                 })
                 .FirstOrDefaultAsync();
 
@@ -46,23 +43,11 @@ namespace AuthService.Services.Implementation
                 throw new Exception("Usuario no encontrado.");
             }
 
-            if (!string.IsNullOrEmpty(request.Email))
-            {
-                user.Email = request.Email;
-            }
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
-            {
-                user.PhoneNumber = request.PhoneNumber;
-            }
-            if (!string.IsNullOrEmpty(request.PreferredLanguage))
-            {
-                user.PreferredLanguage = request.PreferredLanguage;
-            }
+            if (!string.IsNullOrEmpty(request.Email)) user.Email = request.Email;
+            if (!string.IsNullOrEmpty(request.PreferredLanguage)) user.PreferredLanguage = request.PreferredLanguage;
 
             user.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
-
             return await GetUserProfileAsync(userId);
         }
 
@@ -73,6 +58,9 @@ namespace AuthService.Services.Implementation
                 .Where(p => p.UserId == userId)
                 .Select(p => new AccessibilityProfileDto
                 {
+                    Alias = p.Alias, 
+                    AgeRange = p.AgeRange,
+                    LiteracyLevel = p.LiteracyLevel,
                     Theme = p.Theme,
                     ScreenReaderMode = p.ScreenReaderMode,
                     FontScale = p.FontScale,
@@ -88,7 +76,7 @@ namespace AuthService.Services.Implementation
             return profile;
         }
 
-        public async Task<AccessibilityProfileDto> UpdateAccessibilityProfileAsync(Guid userId, AccessibilityProfileDto request)
+        public async Task<AccessibilityProfileDto> UpdateAccessibilityProfileAsync(Guid userId, UpdateAccessibilityProfileDto request)
         {
             var profile = await _context.AccessibilityProfiles
                 .FirstOrDefaultAsync(p => p.UserId == userId);
@@ -98,6 +86,9 @@ namespace AuthService.Services.Implementation
                 throw new Exception("Perfil de accesibilidad no encontrado.");
             }
 
+            profile.Alias = request.Alias;
+            profile.AgeRange = request.AgeRange;
+            profile.LiteracyLevel = request.LiteracyLevel;
             profile.Theme = request.Theme;
             profile.ScreenReaderMode = request.ScreenReaderMode;
             profile.FontScale = request.FontScale;
@@ -107,7 +98,17 @@ namespace AuthService.Services.Implementation
 
             await _context.SaveChangesAsync();
 
-            return request; 
+            return new AccessibilityProfileDto
+            {
+                Alias = profile.Alias,
+                AgeRange = profile.AgeRange,
+                LiteracyLevel = profile.LiteracyLevel,
+                Theme = profile.Theme,
+                ScreenReaderMode = profile.ScreenReaderMode,
+                FontScale = profile.FontScale,
+                NudgingLevel = profile.NudgingLevel,
+                VoiceFeedback = profile.VoiceFeedback
+            };
         }
 
 
@@ -116,29 +117,24 @@ namespace AuthService.Services.Implementation
             return await _context.ConsentRecords
                 .AsNoTracking()
                 .Where(c => c.UserId == userId)
-                .Select(c => new ConsentRecordDto
-                {
-                    Id = c.Id,
-                    Type = c.Type,
-                    Granted = c.Granted,
-                    Timestamp = c.Timestamp
-                })
+                .Select(c => new ConsentRecordDto { })
                 .ToListAsync();
         }
 
         public async Task<ConsentRecordDto> UpdateConsentAsync(Guid userId, UpdateConsentRequestDto request)
         {
             var consent = await _context.ConsentRecords
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.Type == request.Type);
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (consent == null)
             {
                 consent = new ConsentRecord
                 {
+                    Id = Guid.NewGuid(), 
                     UserId = userId,
-                    Type = request.Type,
                     Granted = request.Granted,
-                    Timestamp = DateTime.UtcNow
+                    Timestamp = DateTime.UtcNow,
+                    RevokedAt = request.Granted ? null : (DateTime?)DateTime.UtcNow 
                 };
                 _context.ConsentRecords.Add(consent);
             }
@@ -146,6 +142,7 @@ namespace AuthService.Services.Implementation
             {
                 consent.Granted = request.Granted;
                 consent.Timestamp = DateTime.UtcNow;
+                consent.RevokedAt = request.Granted ? null : (DateTime?)DateTime.UtcNow; 
             }
 
             await _context.SaveChangesAsync();
@@ -153,7 +150,6 @@ namespace AuthService.Services.Implementation
             return new ConsentRecordDto
             {
                 Id = consent.Id,
-                Type = consent.Type,
                 Granted = consent.Granted,
                 Timestamp = consent.Timestamp
             };

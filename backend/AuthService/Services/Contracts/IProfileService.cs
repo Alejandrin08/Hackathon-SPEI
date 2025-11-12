@@ -10,7 +10,7 @@ namespace AuthService.Services.Contracts
 
         Task<AccessibilityProfileDto> GetAccessibilityProfileAsync(Guid userId);
 
-        Task<AccessibilityProfileDto> UpdateAccessibilityProfileAsync(Guid userId, AccessibilityProfileDto request);
+        Task<AccessibilityProfileDto> UpdateAccessibilityProfileAsync(Guid userId, UpdateAccessibilityProfileDto request);
 
         Task<IEnumerable<ConsentRecordDto>> GetConsentsAsync(Guid userId);
 

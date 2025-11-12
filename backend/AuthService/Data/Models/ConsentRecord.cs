@@ -9,8 +9,6 @@ public partial class ConsentRecord
 
     public Guid UserId { get; set; }
 
-    public string Type { get; set; } = null!;
-
     public bool Granted { get; set; }
 
     public DateTime Timestamp { get; set; }

@@ -58,8 +58,8 @@ namespace AuthService.Controllers
             return Ok(accessibilityProfile);
         }
 
-        [HttpPut("accessibility")] 
-        public async Task<IActionResult> UpdateMyAccessibilityProfile([FromBody] AccessibilityProfileDto request)
+        [HttpPut("accessibility")]
+        public async Task<IActionResult> UpdateMyAccessibilityProfile([FromBody] UpdateAccessibilityProfileDto request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -68,7 +68,6 @@ namespace AuthService.Controllers
             return Ok(updatedProfile);
         }
 
-        // --- CONSENTIMIENTOS ---
 
         [HttpGet("consent")] 
         public async Task<IActionResult> GetMyConsents()

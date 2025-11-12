@@ -1,12 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY *.csproj .
-
-RUN dotnet restore
+COPY AuthService.csproj ./
+RUN dotnet restore "AuthService.csproj"
 
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish "AuthService.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app

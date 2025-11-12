@@ -4,10 +4,7 @@ namespace AuthService.DTOs.Profile
 {
     public class UpdateConsentRequestDto
     {
-        [Required]
-        public string Type { get; set; }
-
-        [Required]
+        [Required(ErrorMessage = "Debe indicar si acepta (true) o no (false).")]
         public bool Granted { get; set; }
     }
 }
